@@ -30,7 +30,7 @@ T stack_result(const std::vector<momoka::Symbol<T>>& expression){
 				case operator_symbol::times :
 					accumulator *= stack.top();
 					break;
-				case operator_symbol::divide : 
+				case operator_symbol::divide : 		
 					accumulator = stack.top() / accumulator;
 					break;
 			}
@@ -44,47 +44,23 @@ T stack_result(const std::vector<momoka::Symbol<T>>& expression){
 
 template<typename T>
 std::vector<momoka::Symbol<T>> expression_to_revers_polish_notation(const std::vector<momoka::Symbol<T>>& expression){
-	// 通常の式を似非逆ポーランド記法にする
+	// 通常の式を逆ポーランド記法にする
 	using namespace momoka;
-	std::vector<bool> use_flag( expression.size(), false );
+	std::stack<operator_symbol> operator_stack;
 	std::vector<Symbol<T>> rpn;
 
-	// 優先順位の高い式を格納する
-	for(std::size_t i = 0u; i < expression.size(); i++){
-		// *か/なら左辺を右辺を取ってくる
-		if( expression[i].has_operator_symbol() && !use_flag[i] && 
-				(expression[i].get_operator_symbol() == operator_symbol::times ||
-				 expression[i].get_operator_symbol() == operator_symbol::divide))
-		{
-			// 左辺、右辺、オペレータをそれぞれ格納してしまう
-			rpn.emplace_back( expression[i - 1].get_data() );
-			rpn.emplace_back( expression[i + 1].get_data() );
-			rpn.emplace_back( expression[i].get_operator_symbol() );
-
-			use_flag[i - 1] = true;
-			use_flag[i] = true;
-			use_flag[i + 1] = true;
-		}
-	}
-
-	// 順々に式を格納していく
-	for(std::size_t i = 0u; i < expression.size(); i++){
-		if( !use_flag[i] ){
-			// 値の場合
-			if( expression[i].has_data() ){
-				// そのまま格納
-				rpn.emplace_back( expression[i].get_data() );
-			}else{
-				// 式の場合
-				// 次の値が未使用であれば先にそれを格納
-				if( (i + 1) != expression.size() && !use_flag[i + 1]){
-					rpn.emplace_back( expression[i + 1].get_data() );
-					use_flag[i + 1] = true;
+	for(auto&& e : expression){
+		if( e.has_data() ){
+			rpn.emplace_back( e.get_data());
+		}else{
+			if( !operator_stack.empty() && operator_stack.top() < e.get_operator_symbol() ){
+				while( !operator_stack.empty() ){
+					rpn.emplace_back( operator_stack.top() );
+					operator_stack.pop();
 				}
-				// 式を格納
-				rpn.emplace_back( expression[i].get_operator_symbol() );
 			}
-			use_flag[i] = true;
+
+			operator_stack.push( e.get_operator_symbol() );
 		}
 	}
 
@@ -92,7 +68,7 @@ std::vector<momoka::Symbol<T>> expression_to_revers_polish_notation(const std::v
 }
 
 template<typename T>
-std::optional<std::vector<momoka::Symbol<T>>> resulver(const std::vector<T>& values, const T& answer){
+std::optional<std::vector<momoka::Symbol<T>>> komachi_resolver(const std::vector<T>& values, const T& answer){
 	using namespace momoka;
 	std::vector<operator_symbol> operators{
 		operator_symbol::plus,
@@ -153,7 +129,7 @@ int main(int argc, char* argv[]){
 	}
 	int answer = std::stoi( argv[argc - 1] );
 	
-	auto result = resulver(values, answer);
+	auto result = komachi_resolver(values, answer);
 	if(result){
 		for(auto&& e : *result){
 			if( e.has_data() ){

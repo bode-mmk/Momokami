@@ -3,8 +3,10 @@
 #include <optional>
 
 namespace momoka{
-	enum struct operator_symbol{
-		plus,
+
+	// 内部のintは優先順位として扱う
+	enum struct operator_symbol : int{
+		plus = 0,
 		minus,
 		times,
 		divide
@@ -26,6 +28,12 @@ namespace momoka{
 				break;
 		}
 		return os;
+	}
+	
+	// 演算子優先順位の比較
+	inline bool operator<(const operator_symbol left, const operator_symbol right){
+		return
+			( static_cast<int>(left) < static_cast<int>(right) );
 	}
 
 	template<typename T>
