@@ -38,6 +38,15 @@ namespace momoka{
 			false : 
 			( static_cast<int>(left) < static_cast<int>(right) );
 	}
+	inline bool operator>(const operator_symbol left, const operator_symbol right){
+		return right < left;
+	}
+	inline bool operator<=(const operator_symbol left,const operator_symbol right){
+		return !(left > right);
+	}
+	inline bool operator>=(const operator_symbol left,const operator_symbol right){
+		return !(left < right);
+	}
 
 	template<typename T>
 	class Symbol{

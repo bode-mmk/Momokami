@@ -59,8 +59,8 @@ std::vector<momoka::Symbol<T>> expression_to_revers_polish_notation(const std::v
 			rpn.emplace_back( e.get_data());
 		}else{
 			// 先頭のスタックと比較
-			// 先頭のスタックのほうが高ければスタックをおろしてくる
-			if( !operator_stack.empty() && e.get_operator_symbol() < operator_stack.top() ){
+			// 先頭のスタックのほうが高いか等しければスタックをおろしてくる
+			if( !operator_stack.empty() && e.get_operator_symbol() <= operator_stack.top() ){
 				while( !operator_stack.empty() ){
 					rpn.emplace_back( operator_stack.top() );
 					operator_stack.pop();
