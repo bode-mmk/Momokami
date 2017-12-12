@@ -7,7 +7,7 @@
 #include "symbol.hpp"
 
 template<typename T>
-T stack_result(const std::vector<momoka::Symbol<T>>& expression){
+std::optional<T> stack_result(const std::vector<momoka::Symbol<T>>& expression){
 	// 基本的な逆ポーランド記法の演算の実装
 	// wikiマン
 	using namespace momoka;
@@ -31,6 +31,11 @@ T stack_result(const std::vector<momoka::Symbol<T>>& expression){
 					accumulator *= stack.top();
 					break;
 				case operator_symbol::divide : 		
+					// 0除算が発生した場合は計算失敗
+					if( accumulator == 0 ){
+						return std::nullopt;
+					}
+
 					accumulator = stack.top() / accumulator;
 					break;
 			}
@@ -39,7 +44,7 @@ T stack_result(const std::vector<momoka::Symbol<T>>& expression){
 		}
 	}
 
-	return stack.top();
+	return std::make_optional( stack.top() );
 }
 
 template<typename T>
@@ -92,7 +97,8 @@ std::optional<std::vector<momoka::Symbol<T>>> komachi_resolver(const std::vector
 		}
 
 		// 答えがあうかね？
-		if( stack_result( expression_to_revers_polish_notation( expression )) == answer ){
+		auto result = stack_result( expression_to_revers_polish_notation( expression ));
+		if( result && *result == answer ){
 			// 合えばvectorを返す
 			return expression;
 		}
