@@ -1,10 +1,14 @@
+#ifndef KOMACHI_RESOLVER_SYMBOL_HPP
+#define KOMACHI_RESOLVER_SYMBOL_HPP
+
 #include <string>
 #include <iostream>
 #include <optional>
 
-namespace momoka{
+namespace komachi_resolver{
 
-	// 内部のintは優先順位として扱う
+	// 演算子
+	// int値は擬似的に優先順位
 	enum struct operator_symbol : int{
 		plus = 0,
 		minus,
@@ -97,3 +101,5 @@ namespace momoka{
 		return os;
 	}
 }
+
+#endif
