@@ -32,7 +32,10 @@ namespace momoka{
 	
 	// 演算子優先順位の比較
 	inline bool operator<(const operator_symbol left, const operator_symbol right){
+		// 両方+か-なら優先順位は同等なのでfalse
 		return
+			( static_cast<int>(left) < 2 && static_cast<int>(right) < 2) ? 
+			false : 
 			( static_cast<int>(left) < static_cast<int>(right) );
 	}
 
@@ -67,8 +70,21 @@ namespace momoka{
 			operator_ = os;
 			data_ = std::nullopt;
 		}		
+		
+		template<typename E>
+		friend std::ostream& operator<<(std::ostream& os,const Symbol<E>& symbol);
 	private:
 		std::optional<T> data_;
 		operator_symbol operator_;	
-	};	
+	};
+
+	template<typename T>
+	std::ostream& operator<<(std::ostream& os,const  Symbol<T>& symbol){
+		if( symbol.has_data() ){
+			os << symbol.get_data();
+		}else{
+			os << symbol.get_operator_symbol();
+		}
+		return os;
+	}
 }

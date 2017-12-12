@@ -58,7 +58,9 @@ std::vector<momoka::Symbol<T>> expression_to_revers_polish_notation(const std::v
 		if( e.has_data() ){
 			rpn.emplace_back( e.get_data());
 		}else{
-			if( !operator_stack.empty() && operator_stack.top() < e.get_operator_symbol() ){
+			// 先頭のスタックと比較
+			// 先頭のスタックのほうが高ければスタックをおろしてくる
+			if( !operator_stack.empty() && e.get_operator_symbol() < operator_stack.top() ){
 				while( !operator_stack.empty() ){
 					rpn.emplace_back( operator_stack.top() );
 					operator_stack.pop();
@@ -66,6 +68,13 @@ std::vector<momoka::Symbol<T>> expression_to_revers_polish_notation(const std::v
 			}
 
 			operator_stack.push( e.get_operator_symbol() );
+		}
+	}
+
+	if( !operator_stack.empty() ){
+		while( !operator_stack.empty() ){
+			rpn.emplace_back( operator_stack.top() );
+			operator_stack.pop();
 		}
 	}
 
@@ -97,9 +106,14 @@ std::optional<std::vector<momoka::Symbol<T>>> komachi_resolver(const std::vector
 		}
 
 		// 答えがあうかね？
-		auto result = stack_result( expression_to_revers_polish_notation( expression ));
+		auto erpn = expression_to_revers_polish_notation( expression );
+		auto result = stack_result( erpn );
 		if( result && *result == answer ){
 			// 合えばvectorを返す
+			for(auto&& e : erpn ){
+				std::cout << e << " ";
+			}
+			std::cout << std::endl;
 			return expression;
 		}
 
@@ -138,11 +152,7 @@ int main(int argc, char* argv[]){
 	auto result = komachi_resolver(values, answer);
 	if(result){
 		for(auto&& e : *result){
-			if( e.has_data() ){
-				std::cout << e.get_data() << " ";		
-			}else{
-				std::cout << e.get_operator_symbol()  << " ";
-			}
+			std::cout << e << " ";
 		}
 
 		std::cout << "=" << answer  << std::endl;	
